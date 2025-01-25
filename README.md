@@ -23,4 +23,4 @@ The `templates/` directory includes the following HTML files:
 
 ## Getting Started
 
-To run this project, you'll need to install the dependencies listed in `requirements.txt`. Then, run the Python application using `python main.py`.
+To run this project, you'll need to install the dependencies listed in `pip install -r requirements.txt`. Then, run the Python application using `python3 main.py`.
