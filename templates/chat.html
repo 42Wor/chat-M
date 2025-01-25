@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chat { max-width: 600px; margin: 0 auto; }
+        #rooms { margin-bottom: 20px; }
+        #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+        #message-form { display: flex; margin-top: 10px; }
+        #message-form input { flex: 1; margin-right: 10px; padding: 10px; }
+        #message-form button { padding: 10px; }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <h1>Welcome, {{ username }}</h1>
+        <div id="rooms">
+            <h2>Rooms</h2>
+            <ul>
+                {% for room in rooms %}
+                <li><button onclick="joinRoom('{{ room.name }}')">{{ room.name }}</button></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div id="messages"></div>
+        <form id="message-form" onsubmit="sendMessage(event)">
+            <input type="text" id="message-input" placeholder="Type your message..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script>
+        const socket = io();
+        let currentRoom = '';
+
+        function joinRoom(room) {
+            if (currentRoom) {
+                socket.emit('leave', { username: "{{ username }}", room: currentRoom });
+            }
+            currentRoom = room;
+            socket.emit('join', { username: "{{ username }}", room: currentRoom });
+            document.getElementById('messages').innerHTML = '';
+        }
+
+        socket.on('message', (data) => {
+            const messageDiv = document.getElementById('messages');
+            messageDiv.innerHTML += `<p><strong>${data.username}:</strong> ${data.message}</p>`;
+            messageDiv.scrollTop = messageDiv.scrollHeight;
+        });
+
+        function sendMessage(event) {
+            event.preventDefault();
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value;
+            socket.emit('send_message', { username: "{{ username }}", room: currentRoom, message: message });
+            messageInput.value = '';
+        }
+    </script>
+</body>
+</html>
